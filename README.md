@@ -1,6 +1,19 @@
 # My Demo Appium
 
-Appium + WebdriverIO tests for Sauce Labs' "My Demo App" on Android.
+Android Appium + WebdriverIO automation for Sauce Labs' My Demo App, built as a lightweight mobile UI portfolio project.
+
+## Recording
+
+Demo video / live-coding recording:
+https://drive.google.com/drive/folders/1WonNXG0UPYQRi6J1YA9m7gbyAGwB_7D1?usp=sharing
+
+## What this project includes
+
+- Android emulator configuration
+- Appium + WebdriverIO setup
+- Page object structure
+- Verified smoke tests against the live app UI
+- A simple portfolio-friendly repo layout
 
 ## Local setup
 
@@ -19,10 +32,15 @@ Appium + WebdriverIO tests for Sauce Labs' "My Demo App" on Android.
 
 - `config/shared.js` - common WDIO settings
 - `config/android.emulator.conf.js` - Android capabilities and app launch settings
-- `src/pages/catalog.page.js` - page object for the catalog screen
-- `tests/specs/catalog.spec.js` - tests for the catalog landing view
+- `src/pages/catalog.page.js` - catalog screen page object
+- `src/pages/login.page.js` - login page object
+- `tests/specs/catalog.spec.js` - smoke tests for the catalog landing view
+- `tests/specs/login.spec.js` - login test flow
+- `test-data/users.js` - sample credentials
 - `apps/` - app binaries (not committed)
 
-## Status
+## Verified behavior
 
-This is a working starting point (config, one page object, two smoke checks), not the finished suite. Locators were verified against the real app with `uiautomator dump`, not guessed. See `TEST_CASES.md` for the full test design.
+The project currently validates core app startup and catalog visibility against the actual emulator UI, using selectors confirmed from `uiautomator dump` rather than guessed values.
+
+This is intentionally scoped as a focused, readable automation suite suitable for a portfolio demo and live coding walkthrough.
