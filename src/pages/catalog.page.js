@@ -8,7 +8,7 @@ class CatalogPage {
   }
 
   async open() {
-    await driver.launchApp({ appId: APP_ID });
+    await driver.execute('mobile: activateApp', { appId: APP_ID });
     await $(this.catalogTitle).waitForDisplayed({ timeout: 30000 });
   }
 

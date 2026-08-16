@@ -1,0 +1,10 @@
+module.exports = {
+    standardUser: {
+        username: 'bod@example.com',
+        password: '10203040'
+    },
+    lockedOutUser: {
+        username: 'alice@example.com',
+        password: '10203040'
+    }
+};

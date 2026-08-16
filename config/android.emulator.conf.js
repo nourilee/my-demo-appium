@@ -6,6 +6,7 @@ ensureAppExists('android', androidAppPath);
 exports.config = {
   ...baseConfig,
   port: 4723,
+  maxInstances: 1,
   services: ['appium'],
   appium: {
     args: {
@@ -27,7 +28,7 @@ exports.config = {
     'appium:udid': process.env.ANDROID_UDID || undefined,
     'appium:autoGrantPermissions': true,
     'appium:noReset': false,
+    'appium:fullReset': true,
     'appium:newCommandTimeout': 120,
-    'appium:appWaitActivity': 'com.saucelabs.mydemoapp.android.view.activities.SplashActivity',
   }],
 };
