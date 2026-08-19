@@ -6,12 +6,12 @@ describe('My Demo App - Catalog', () => {
   });
 
   it('shows the catalog landing page', async () => {
-    await expect(await CatalogPage.isCatalogVisible()).to.equal(true);
-    await expect(await CatalogPage.getCatalogTitle()).to.equal('Products');
-    await expect(await CatalogPage.isProductListVisible()).to.equal(true);
+    await expect(CatalogPage.catalogTitle).toBeDisplayed();
+    await expect(CatalogPage.catalogTitle).toHaveText('Products');
+    await expect(CatalogPage.productList).toBeDisplayed();
   });
 
   it('shows the cart action in the header', async () => {
-    await expect(await CatalogPage.isCartVisible()).to.equal(true);
+    await expect(CatalogPage.cartButton).toBeDisplayed();
   });
 });

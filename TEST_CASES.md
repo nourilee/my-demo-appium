@@ -2,7 +2,7 @@
 
 **Automation Tool:** Appium + WebdriverIO + JavaScript
 **Target Application:** Sauce Labs "My Demo App" (Android) — [https://github.com/saucelabs/my-demo-app-android](https://github.com/saucelabs/my-demo-app-android)
-**Platform:** Android emulator (Pixel, API 30+)
+**Platform:** Android emulator — Pixel 6A AVD, Android 16 (API 36)
 
 ---
 
@@ -73,17 +73,18 @@ This approach:
 Example structure:
 
 ```text
-my-demo-app-automation/
-├── screens/
-│   ├── login.screen.js
-│   ├── products.screen.js
-│   ├── productDetails.screen.js
-│   └── cart.screen.js
+my-demo-appium/
+├── src/
+│   └── pages/
+│       ├── login.page.js
+│       └── catalog.page.js
 ├── tests/
-│   ├── login.spec.js
-│   └── cart.spec.js
+│   └── specs/
+│       ├── login.spec.js
+│       └── catalog.spec.js
 ├── config/
-│   └── wdio.conf.js
+│   ├── shared.js
+│   └── android.emulator.conf.js
 ├── test-data/
 │   └── users.js
 ├── package.json
@@ -110,7 +111,7 @@ For example, after adding a product to the cart, I will verify that the expected
 
 ## Environment
 
-I will use an **Android emulator with a Pixel device profile and API 30+**.
+I will use an **Android emulator with a Pixel device profile**. The suite is developed and verified against a Pixel 6A AVD running Android 16 (API 36), driven by Appium 3 with the UiAutomator2 driver.
 
 An emulator is appropriate for this assessment because it:
 
@@ -148,6 +149,17 @@ $('//android.widget.LinearLayout/android.widget.Button')
 ```
 
 Accessibility-based locators are preferred where available because they are generally more maintainable and less sensitive to changes in the visual UI structure.
+
+Every locator used in the suite was confirmed against the running app by
+capturing the page source in each relevant state (logged out, logged in, and
+the locked-out error state) rather than being inferred from the UI. Two results
+worth recording:
+
+* The navigation drawer exposes `~Login Menu Item` and `~Logout Menu Item` as
+  accessibility IDs, so no text matching is needed to detect session state.
+* The drawer's `RecyclerView` (`~Recycler view for menu`) is absent from the
+  hierarchy while the drawer is closed, which makes it a reliable signal that
+  the drawer is open and settled.
 
 ## Assertion Strategy
 
@@ -279,7 +291,7 @@ The user is successfully authenticated and redirected to the Products screen. Th
 ### Preconditions
 
 * Application is installed and launched.
-* User is logged out. This must be enforced explicitly: the app keeps a session active across `driver.launchApp()` calls (no full reset between tests), so if TC-01 ran immediately before this case, the navigation menu will show "Log Out" instead of "Log In" unless the previous session is closed first.
+* User is logged out. This must be enforced explicitly: `fullReset` gives each spec file a clean install, but the two login cases share a single Appium session, so state carries over from one test to the next. If TC-01 ran immediately before this case, the navigation drawer will show "Log Out" instead of "Log In" unless the previous session is ended in teardown.
 * Locked-out user credentials are available.
 
 ### Test Data
@@ -338,6 +350,53 @@ Authentication is rejected for the locked-out user. An appropriate error message
 The selected product is successfully added to the shopping cart with the correct product and quantity.
 
 ---
+
+# Implementation Status
+
+Where the plan above currently stands in code. Automated cases are the ones
+with a spec file behind them; the rest remain designed but not implemented.
+
+| ID    | Case                       | Status        | Location                     |
+| ----- | -------------------------- | ------------- | ---------------------------- |
+| TC-01 | Successful login           | Automated     | `tests/specs/login.spec.js`   |
+| TC-02 | Locked-out user denied     | Automated     | `tests/specs/login.spec.js`   |
+| TC-03 | View product catalog       | Automated     | `tests/specs/catalog.spec.js` |
+| TC-04 | Product sorting            | Designed only | —                            |
+| TC-05 | Add product to cart        | Designed only | —                            |
+| TC-06 | Remove item / empty cart   | Designed only | —                            |
+| TC-07 | Checkout — valid info      | Designed only | —                            |
+| TC-08 | Checkout — missing info    | Designed only | —                            |
+| TC-09 | Cart quantity consistency  | Designed only | —                            |
+| TC-10 | Product details            | Designed only | —                            |
+
+## Known gaps between this design and the current code
+
+These are tracked deliberately rather than quietly dropped:
+
+* **TC-05 is named in the automation scope above but is not yet implemented.**
+  It is the next case to build, and the one intended for the live-coding video.
+* The **Successful Login** assertions in this document list four checks. The
+  current test covers "Products screen is displayed" and "product content is
+  visible"; "navigated away from the Login screen" is not asserted directly.
+* The **Failed Login** assertions are covered: the test asserts the expected
+  error message, that the login button is still displayed (the user is held on
+  the Login screen), and that the Products screen is not shown.
+
+## Stability and runtime
+
+The suite is run repeatedly rather than once, on the assumption that a test
+that passes once has not yet been shown to be reliable.
+
+Most recent measurement — 8 consecutive runs (32 test executions), including
+3 runs with the host CPU saturated to simulate a slower machine: **0 failures**.
+
+Current runtime is roughly 40s wall for the full suite, split across two
+Appium sessions (one per spec file, each with `fullReset`).
+
+Assertions use WebdriverIO's `expect`, which polls the element rather than
+probing it once, so a slow screen transition is absorbed instead of being
+reported as a defect. The trade-off is that a genuine failure takes up to
+`waitforTimeout` (15s) to report.
 
 # Recording Day Checklist
 

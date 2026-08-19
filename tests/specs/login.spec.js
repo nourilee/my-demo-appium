@@ -8,22 +8,31 @@ describe('My Demo App - Login', () => {
   });
 
   afterEach(async () => {
-    try {
+    // Both tests share one Appium session, so each hands the app back on the
+    // login screen. The locked-out test never authenticates, so checking first
+    // avoids waiting out a timeout for a Log Out row that cannot appear.
+    if (await LoginPage.isLoggedIn()) {
       await LoginPage.logout();
-    } catch (error) {
-      // Keep the teardown graceful; the menu logout is flaky and should not break the demo run.
+    } else {
+      await LoginPage.goToLogin();
     }
   });
 
   it('logs in successfully with valid credentials', async () => {
     await LoginPage.login(users.standardUser.username, users.standardUser.password);
-    await expect(await CatalogPage.isCatalogVisible()).to.equal(true);
+
+    await expect(CatalogPage.catalogTitle).toBeDisplayed();
+    await expect(CatalogPage.productList).toBeDisplayed();
   });
 
   it('shows an error message with locked out user', async () => {
     await LoginPage.login(users.lockedOutUser.username, users.lockedOutUser.password);
 
-    const errorMessage = await LoginPage.getErrorMessage();
-    await expect(errorMessage).to.include('Sorry this user has been locked out');
+    await expect(LoginPage.errorMessage).toHaveText('Sorry this user has been locked out', {
+      containing: true,
+    });
+    // The user must be held on the login screen, not just shown a message.
+    await expect(LoginPage.loginButton).toBeDisplayed();
+    await expect(CatalogPage.catalogTitle).not.toBeDisplayed();
   });
 });
