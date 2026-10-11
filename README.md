@@ -2,10 +2,6 @@
 
 Android Appium + WebdriverIO automation for Sauce Labs' My Demo App, built as a lightweight mobile UI portfolio project.
 
-## Recording
-
-Demo video / live-coding recording:
-https://drive.google.com/drive/folders/1WonNXG0UPYQRi6J1YA9m7gbyAGwB_7D1?usp=sharing
 
 ## What this project includes
 
